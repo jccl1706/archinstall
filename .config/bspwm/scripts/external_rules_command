@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+############################
+## external_rules_command ##
+############################
+
+wid=$1
+class=$2
+instance=$3
+consequences=$4
+
+case "$class" in
+	Virt-manager)
+	eval "$consequences"
+	[ "$state" ] || echo "state=floating desktop=^7 follow=on center=on"
+	;;
+	Pavucontrol)
+	eval "$consequences"
+	[ "$state" ] || echo "state=floating center=on rectangle=760x495+0+0"
+	;;
+	Timeshift-gtk)
+	eval "$consequences"
+	[ "$state" ] || echo "state=floating center=on"
+	;;
+esac
