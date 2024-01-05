@@ -2,6 +2,7 @@ configuration {
 	display-drun: "";
 	display-clipboard: "";
 	drun-display-format: "{name}";
+	terminal: "alacritty";
 	modi: "drun";
 }
 
