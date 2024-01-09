@@ -7,17 +7,50 @@ super + Return
 super + p
 	rofi -show drun -config .config/rofi/menu.rasi -show-icons
 
+
 # WINDOW SELECTOR
 alt + Tab
 	rofi -show window -config .config/rofi/menu.rasi -show-icons
+
 
 # SCRATCHPAD
 super + alt + o
 	tdrop -m -a -w 70% -h 45% -y 100 -x 15%  --class scratch alacritty --class=scratch
 
-# HTOP
+
+# HTOP FLOATING
 super + h
 	alacritty -t 'htop task manager' -e htop
+
+
+# ZENBOOK X14 BRIGHTNESS UP
+XF86MonBrightnessUp
+	brillo -s intel_backlight -u 150000 -A 5
+
+
+# ZENBOOK X14 BRIGHTNESS UP
+XF86MonBrightnessDown
+	brillo -s intel_backlight -u 150000 -U 5
+
+
+# AUDIO MUTE
+XF86AudioMute
+	pactl set-sink-mute 0 toggle
+
+
+# AUDIO VOLUME LOWER
+XF86AudioLowerVolume
+	pactl set-sink-volume 0 -5%
+
+
+# AUDIO VOLUME RAISE
+XF86AudioRaiseVolume
+	pactl set-sink-volume 0 +5%
+
+
+# MUTE MIC IMPUT
+XF86AudioMicMute
+	pactl set-source-mute 1 toggle
 
 
 # RELOAD SXHKD CONFIG

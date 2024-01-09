@@ -9,7 +9,7 @@ configuration {
 @import "~/.config/rofi/colors.rasi"
 
 * {
-	font: "JetbrainsMono 10";
+	font: "JetbrainsMono 16";
 
 	background-color: @gr;
 	separatorcolor: transparent;
@@ -21,8 +21,8 @@ configuration {
 }
 
 window {
-	width: 700px;
-	height: 350px;
+	width: 800px;
+	height: 450px;
 	border-radius: 0;
 	border: 0;
 	padding: 10;

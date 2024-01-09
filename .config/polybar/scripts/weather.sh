@@ -42,8 +42,8 @@ get_icon() {
 }
 
 KEY="e434b5435a979de6e155570590bee89b"
-CITY="Novosibirsk"
-UNITS="metric"
+CITY="Miami"
+UNITS="imperial"
 SYMBOL="°"
 
 API="https://api.openweathermap.org/data/2.5"

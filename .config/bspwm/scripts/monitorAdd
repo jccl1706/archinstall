@@ -1,0 +1,24 @@
+#!/bin/bash
+while getopts ":i:e:" opt; do
+  case $opt in
+    i)INTERNAL_MONITOR="$OPTARG"
+    ;;
+    e)EXTERNAL_MONITOR="$OPTARG"
+    ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+    ;;
+  esac
+done
+
+xrandr --output ${EXTERNAL_MONITOR} --dpi 96 --mode 2560x1440 --right-of ${INTERNAL_MONITOR}
+until [[ $(bspc query -M | wc -l) -eq 2 ]]
+do
+  sleep 5
+done
+bspc desktop 1  --to-monitor "$EXTERNAL_MONITOR"
+bspc desktop 2 --to-monitor "$EXTERNAL_MONITOR"
+bspc desktop 3 --to-monitor "$EXTERNAL_MONITOR"
+bspc desktop 4 --to-monitor "$EXTERNAL_MONITOR"
+bspc desktop 5 --to-monitor "$EXTERNAL_MONITOR"
+bspc desktop Desktop --remove
+bspc wm -O "$EXTERNAL_MONITOR" "$INTERNAL_MONITOR"

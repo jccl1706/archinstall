@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Function to get the previous value from a file
+get_previous_value() {
+  if [ -e "previous_value.txt" ]; then
+    cat "previous_value.txt"
+  else
+    echo ""
+  fi
+}
+
+# Function to save the current value to a file
+save_current_value() {
+  echo "$1" > "previous_value.txt"
+}
+
+# Get the current and previous values
+current_value=$(brillo | awk '{gsub(".00", ""); print $1}')
+previous_value=$(get_previous_value)
+
+# Print the current value to the console
+echo "$current_value%"
+
+# Compare values and send notification if they are different
+if [ "$current_value" != "$previous_value" ]; then
+  # Send notification
+ # notify-send "Brillo Result" "$current_value"
+  
+  # Save the current value
+  save_current_value "$current_value"
+fi
+
