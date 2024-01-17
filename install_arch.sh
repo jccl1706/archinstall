@@ -9,7 +9,10 @@ if [[ "$UID" -ne 0 ]]; then
 fi
 
 ### Config options
-target="/dev/vda"
+target="/dev/nvme0n1"
+efipart="/dev/nvme0n1p1"
+swappart="/dev/nvme0n1p2"
+rootpart="/dev/nvme0n1p3"
 rootmnt="/mnt"
 locale="en_US.UTF-8"
 keymap="us"
@@ -22,8 +25,8 @@ user_password="\$6\$KMjCZajVhYXNihUr\$AfqyGDmloZs.sEWUkdsmpbKoZqEks3tbJS5Xr9goUC
 
 #To fully automate the setup, change badidea=no to yes, and enter a cleartext password for the disk encryption
 
-badidea="no"
-crypt_password="1111"
+# badidea="no"
+# crypt_password="1111"
 
 
 ### Packages to pacstrap ##
@@ -67,53 +70,48 @@ sgdisk \
 sleep 2
 partprobe -s "$target"
 sleep 2
-# echo "Encrypting root partition..."
-# #Encrypt the root partition. If badidea=yes, then pipe cryptpass and carry on, if not, prompt for it
-# # if [[ "$badidea" == "yes" ]]; then
-# # echo -n "$crypt_password" | cryptsetup luksFormat --type luks2 /dev/disk/by-partlabel/linux -
-# # echo -n "$crypt_password" | cryptsetup luksOpen /dev/disk/by-partlabel/linux root -
-# # else
-# # cryptsetup luksFormat --type luks2 /dev/disk/by-partlabel/linux
-# # cryptsetup luksOpen /dev/disk/by-partlabel/linux root
-# # fi
 echo "Making File Systems..."
 # Create file systems
 mkfs.vfat -F32 -n EFISYSTEM /dev/disk/by-partlabel/EFISYSTEM
-mkfs.ext4 -L linux /dev/vda3
+mkfs.ext4 -L linux "$rootpart"
 # mount the root, and create + mount the EFI directory
 echo "Mounting File Systems..."
-mount /dev/vda3 "$rootmnt"
+mount "$rootpart" "$rootmnt"
 mkdir "$rootmnt"/boot/efi -p
 mount -t vfat /dev/disk/by-partlabel/EFISYSTEM "$rootmnt"/boot/efi
-
+sleep 2
+# mount & activating swap partition
+echo "Activating & Mounting SWAP partition"
+mkswap "$swappart"
+swapon "$swappart"
+sleep 2
 
 #Update pacman mirrors and then pacstrap base install
 echo "Pacstrapping..."
-#reflector --country US --age 24 --protocol http,https --sort rate --save /etc/pacman.d/mirrorlist
 pacstrap -K $rootmnt "${pacstrappacs[@]}"
-sleep 1
+sleep 2
 
 echo "Generating fstab file..."
 genfstab -U $rootmnt >> "$rootmnt"/etc/fstab
-sleep 1
+sleep 2
 
-# echo "Setting up environment..."
-# #set up locale/env
-# #add our locale to locale.gen
-# sed -i -e "/^#"$locale"/s/^#//" "$rootmnt"/etc/locale.gen
-# #remove any existing config files that may have been pacstrapped, systemd-firstboot will then regenerate them
-# rm "$rootmnt"/etc/{machine-id,localtime,hostname,shadow,locale.conf} ||
-# systemd-firstboot --root "$rootmnt" \
-# 	--keymap="$keymap" --locale="$locale" \
-# 	--locale-messages="$locale" --timezone="$timezone" \
-# 	--hostname="$hostname" --setup-machine-id \
-# 	--welcome=false
-# arch-chroot "$rootmnt" locale-gen
-# echo "Configuring for first boot..."
-# #add the local user
-# arch-chroot "$rootmnt" useradd -G wheel -m -p "$user_password" "$username"
-# #uncomment the wheel group in the sudoers file
-# sed -i -e '/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/s/^# //' "$rootmnt"/etc/sudoers
+echo "Setting up environment..."
+#set up locale/env
+#add our locale to locale.gen
+sed -i -e "/^#"$locale"/s/^#//" "$rootmnt"/etc/locale.gen
+#remove any existing config files that may have been pacstrapped, systemd-firstboot will then regenerate them
+rm "$rootmnt"/etc/{machine-id,localtime,hostname,shadow,locale.conf} ||
+systemd-firstboot --root "$rootmnt" \
+	--keymap="$keymap" --locale="$locale" \
+	--locale-messages="$locale" --timezone="$timezone" \
+	--hostname="$hostname" --setup-machine-id \
+	--welcome=false
+arch-chroot "$rootmnt" locale-gen
+echo "Configuring for first boot..."
+#add the local user
+arch-chroot "$rootmnt" useradd -G wheel -m -p "$user_password" "$username"
+#uncomment the wheel group in the sudoers file
+sed -i -e '/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/s/^# //' "$rootmnt"/etc/sudoers
 # #create a basic kernel cmdline, we're using DPS so we don't need to have anything here really, but if the file doesn't exist, mkinitcpio will complain
 # echo "quiet rw" > "$rootmnt"/etc/kernel/cmdline
 # #change the HOOKS in mkinitcpio.conf to use systemd hooks
