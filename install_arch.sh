@@ -9,10 +9,10 @@ if [[ "$UID" -ne 0 ]]; then
 fi
 
 ### Config options
-target="/dev/nvme0n1"
-efipart="/dev/nvme0n1p1"
-swappart="/dev/nvme0n1p2"
-rootpart="/dev/nvme0n1p3"
+target="/dev/vda"
+efipart="/dev/vda1"
+swappart="/dev/vda2"
+rootpart="/dev/vda3"
 rootmnt="/mnt"
 locale="en_US.UTF-8"
 keymap="us"
@@ -22,11 +22,6 @@ username="jc"
 #SHA512 hash of password. To generate, run 'mkpasswd -m sha-512', don't forget to prefix any $ symbols with \ . The entry below is the hash of 'password'
 #user_password="\$6\$/VBa6GuBiFiBmi6Q\$yNALrCViVtDDNjyGBsDG7IbnNR0Y/Tda5Uz8ToyxXXpw86XuCVAlhXlIvzy1M8O.DWFB6TRCia0hMuAJiXOZy/"
 user_password="\$6\$KMjCZajVhYXNihUr\$AfqyGDmloZs.sEWUkdsmpbKoZqEks3tbJS5Xr9goUCoXXJa71hDtbL3ZTXxhfc34QOOJpounnO9peYoWhRQCy1"
-
-#To fully automate the setup, change badidea=no to yes, and enter a cleartext password for the disk encryption
-
-# badidea="no"
-# crypt_password="1111"
 
 
 ### Packages to pacstrap ##
@@ -106,6 +101,7 @@ systemd-firstboot --root "$rootmnt" \
 	--locale-messages="$locale" --timezone="$timezone" \
 	--hostname="$hostname" --setup-machine-id \
 	--welcome=false
+sed -i '/^KEYMAP/a\FONT=ter-124b' "$rootmnt"/etc/vconsole.conf
 arch-chroot "$rootmnt" locale-gen
 echo "Configuring for first boot..."
 #add the local user
@@ -161,9 +157,9 @@ sed -i -e '/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/s/^# //' "$rootmnt"/etc/sudoer
 # #and we're done
 #
 #
-# echo "-----------------------------------"
-# echo "- Install complete. Rebooting.... -"
-# echo "-----------------------------------"
-# sleep 10
-# sync
+echo "-----------------------------------"
+echo "- Install complete. Rebooting.... -"
+echo "-----------------------------------"
+sleep 10
+sync
 # reboot
