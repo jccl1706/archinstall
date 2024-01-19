@@ -40,14 +40,14 @@ pacstrappacs=(
         )
 ### Desktop packages #####
 guipacs=(
-        # gnome
-        # gnome-tweaks
-        # gdm
+        gnome
+        gnome-tweaks
+        gdm
         # plasma
         # plasma-wayland-session
         # sddm
         kitty
-        # firefox
+        firefox
         # alacritty
         # nm-connection-editor
         # neofetch
@@ -125,19 +125,24 @@ arch-chroot "$rootmnt" pacman -Sy "${guipacs[@]}" --noconfirm --quiet
 
 #enable the services we will need on start up
 echo "Enabling services..."
-systemctl --root "$rootmnt" enable NetworkManager
+systemctl --root "$rootmnt" enable NetworkManager gdm
 
-#generating initial ramdisk
 echo "Generating  initial ramdisk..."
+#generating initial ramdisk
 arch-chroot "$rootmnt" mkinitcpio -p linux
 
+echo "Installing the GRUB bootloader..."
 #install the GRUB bootloader
-# arch-chroot "$rootmnt" bootctl install --esp-path=/efi
-# #lock the root account
-# arch-chroot "$rootmnt" usermod -L root
-# #and we're done
-#
-#
+arch-chroot "$rootmnt" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB "$rootpart"
+
+echo "Generating grub.cfg..."
+#generated grub.cfg
+arch-chroot "$rootmnt" grub-mkconfig -o /boot/grub/grub.cfg
+
+#lock the root account
+arch-chroot "$rootmnt" usermod -L root
+#and we're done
+
 echo "-----------------------------------"
 echo "- Install complete. Rebooting.... -"
 echo "-----------------------------------"
