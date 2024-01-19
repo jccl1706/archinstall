@@ -28,14 +28,15 @@ user_password="\$6\$KMjCZajVhYXNihUr\$AfqyGDmloZs.sEWUkdsmpbKoZqEks3tbJS5Xr9goUC
 pacstrappacs=(
         base
         base-devel
-        linux
-        linux-firmware
         efibootmgr
         grub
         git
+        linux
+        linux-firmware
+        networkmanager
         neovim
         sudo
-        networkmanager
+        terminus-font
         )
 ### Desktop packages #####
 guipacs=(
@@ -69,7 +70,7 @@ sleep 2
 echo "Making File Systems..."
 # Create file systems
 mkfs.vfat -F32 -n EFISYSTEM /dev/disk/by-partlabel/EFISYSTEM
-mkfs.ext4 -L linux "$rootpart"
+mkfs.ext4 -F -L linux "$rootpart"
 mkswap "$swappart"
 
 # mount the root, and create + mount the EFI directory
